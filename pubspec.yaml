@@ -1,54 +1,19 @@
-name: Build APK
+name: maharashtra_sports_app
+description: "Maharashtra Sports Department - Mobile App"
+publish_to: 'none'
+version: 1.0.0+1
 
-on:
-  push:
-    branches: [ main, master ]
-  workflow_dispatch:
+environment:
+  sdk: '>=3.5.0 <4.0.0'
 
-jobs:
-  build:
-    runs-on: ubuntu-latest
+dependencies:
+  flutter:
+    sdk: flutter
+  webview_flutter: ^4.7.0
+  connectivity_plus: ^6.0.3
 
-    steps:
-      - name: Checkout code
-        uses: actions/checkout@v4
+dev_dependencies:
+  flutter_lints: ^3.0.0
 
-      - name: Set up Java
-        uses: actions/setup-java@v4
-        with:
-          distribution: 'zulu'
-          java-version: '17'
-
-      - name: Set up Flutter
-        uses: subosito/flutter-action@v2
-        with:
-          flutter-version: '3.24.0'
-          channel: 'stable'
-
-      - name: Generate Android platform files
-        run: |
-          flutter create --platforms=android --org com.mahasports temp_project
-          cp -r temp_project/android ./android
-          rm -rf temp_project
-
-      - name: Add Internet permission to manifest
-        run: |
-          sed -i 's#<manifest xmlns:android="http://schemas.android.com/apk/res/android">#<manifest xmlns:android="http://schemas.android.com/apk/res/android">\n    <uses-permission android:name="android.permission.INTERNET"/>\n    <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE"/>#' android/app/src/main/AndroidManifest.xml
-          sed -i 's#android:label="temp_project"#android:label="Maharashtra Sports"#' android/app/src/main/AndroidManifest.xml
-
-      - name: Fix Kotlin version
-        run: |
-          sed -i "s/ext.kotlin_version = '.*'/ext.kotlin_version = '1.9.10'/" android/build.gradle || true
-          sed -i 's/id "org.jetbrains.kotlin.android" version ".*"/id "org.jetbrains.kotlin.android" version "1.9.10"/' android/settings.gradle || true
-
-      - name: Install dependencies
-        run: flutter pub get
-
-      - name: Build APK
-        run: flutter build apk --release
-
-      - name: Upload APK as artifact
-        uses: actions/upload-artifact@v4
-        with:
-          name: maharashtra-sports-app-apk
-          path: build/app/outputs/flutter-apk/app-release.apk
+flutter:
+  uses-material-design: true
